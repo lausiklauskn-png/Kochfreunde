@@ -18,6 +18,10 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // Herkunft ist dokumentarisch (die Quell-Repos liegen nicht im Pages-Deploy);
 // der Guard prüft die KOPIE gegen den festgehaltenen Hash.
 const EXPECTED = [
+  // Der geteilte Kern (Klebstoff) — MUSS in beiden Hüllen byte-1:1 sein.
+  { file: "comm-core/comm-core.js",                sha: "1b0781bf35b9c888ce33d6a50a7e0898cd1218478ad0b9bdf9098d7ad6c0a665", src: "geteilter Kern (Kochfreunde == Kuechenzettel)" },
+  { file: "comm-core/relay-transport.js",          sha: "2bc716b2dd6a0f64e1159f75c70cdb98d3feb3d42b47d8d87f28f8790e2fd3d7", src: "geteilter Kern (Kochfreunde == Kuechenzettel)" },
+  // Byte-1:1 aus dem Baukasten kopierte Bausteine.
   { file: "comm-core/vendor/noble-secp256k1.js",  sha: "8f3879ca422c4fdfe7ca0361688636fa7cc550a59bd94d512ed6ec79aa3d55d1", src: "Privat-Brain/modules/noble-secp256k1.js" },
   { file: "comm-core/vendor/dm_crypto.js",         sha: "e9c973f0459c5f03fa80b47d3cd4505ef6d4bd689e409569370a59db2586ba63", src: "Privat-Brain/modules/dm_crypto.js" },
   { file: "comm-core/vendor/jasonlib.js",          sha: "d9b260980bf34dc3682fd062f15e2fcb18b305350833cce88b4980ab0b3f64df", src: "Jasons-Tresor/jasons-bibliothek/index.html (JASONLIB-CORE-START..END)" },
