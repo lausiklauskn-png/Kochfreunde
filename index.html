@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kochfreunde — dein Koch-Begleiter</title>
+<meta name="theme-color" content="#c65d3b">
+<meta name="description" content="Kochfreunde — Rezepte sammeln, kochen, genießen. Dein warmer Begleiter in der Küche.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kochfreunde">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<style>
+  :root{
+    --terra:#c65d3b; --terra-d:#a94a2c; --cream:#fbf5ec; --paper:#fffdf9;
+    --brown:#3a2a20; --brown-2:#6b5648; --honey:#e0a458; --olive:#7a7a3c;
+    --line:#ece0d0; --shadow:0 6px 24px rgba(58,42,32,.10); --shadow-s:0 2px 8px rgba(58,42,32,.08);
+    --r:18px; --r-s:12px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:
+      radial-gradient(1200px 600px at 90% -10%, #fdeede 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #f6ecdb 0%, transparent 55%),
+      var(--cream);
+    color:var(--brown); -webkit-tap-highlight-color:transparent;
+    min-height:100vh;
+  }
+  h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:600;letter-spacing:.2px}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  .wrap{max-width:940px;margin:0 auto;padding:0 16px 120px}
+
+  /* top bar */
+  .topbar{display:flex;align-items:center;gap:12px;padding:18px 16px 8px;max-width:940px;margin:0 auto;position:sticky;top:0;
+    background:linear-gradient(var(--cream) 72%, transparent);z-index:20}
+  .brand{display:flex;align-items:center;gap:10px}
+  .hat{font-size:30px;filter:drop-shadow(0 2px 2px rgba(198,93,59,.25));user-select:none;-webkit-user-select:none}
+  .brand h1{font-size:1.5rem;margin:0;color:var(--terra-d)}
+  .brand small{display:block;font-family:system-ui;font-size:.72rem;color:var(--brown-2);letter-spacing:.5px;margin-top:-2px}
+  .spacer{flex:1}
+  .icon-btn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:20px;
+    background:var(--paper);box-shadow:var(--shadow-s);transition:transform .15s, box-shadow .15s}
+  .icon-btn:active{transform:scale(.92)}
+
+  /* hero */
+  .hero{margin:6px 0 18px;padding:22px 22px;border-radius:var(--r);
+    background:linear-gradient(135deg,#fff4e9,#ffe9d6);box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .hero::after{content:"🍲";position:absolute;right:-8px;bottom:-14px;font-size:96px;opacity:.14;transform:rotate(-8deg)}
+  .hero h2{margin:0 0 4px;font-size:1.3rem;color:var(--brown)}
+  .hero p{margin:0;color:var(--brown-2);font-size:.95rem;max-width:70%}
+
+  /* chef ask */
+  .ask{display:flex;gap:10px;margin:0 0 18px}
+  .ask input{flex:1;padding:14px 16px;border-radius:999px;border:1px solid var(--line);background:var(--paper);
+    font-size:1rem;color:var(--brown);box-shadow:var(--shadow-s)}
+  .ask input:focus{outline:2px solid #f1c79d}
+  .ask .mic{width:52px;height:52px;border-radius:50%;background:var(--terra);color:#fff;font-size:22px;
+    display:grid;place-items:center;box-shadow:0 6px 16px rgba(198,93,59,.35);transition:transform .12s}
+  .ask .mic:active{transform:scale(.9)}
+  .ask .mic.live{animation:pulse 1s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(198,93,59,.5)}70%{box-shadow:0 0 0 14px rgba(198,93,59,0)}100%{box-shadow:0 0 0 0 rgba(198,93,59,0)}}
+  .chef-reply{margin:-6px 0 16px;padding:12px 16px;border-radius:var(--r-s);background:#fff7ee;border:1px dashed #e9cdae;
+    color:var(--brown-2);font-size:.92rem;display:none}
+  .chef-reply.show{display:block;animation:fade .3s}
+  @keyframes fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1}}
+
+  /* categories */
+  .cats{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none}
+  .chip{white-space:nowrap;padding:8px 14px;border-radius:999px;background:var(--paper);border:1px solid var(--line);
+    font-size:.86rem;color:var(--brown-2);box-shadow:var(--shadow-s);transition:.15s}
+  .chip.on{background:var(--terra);color:#fff;border-color:var(--terra)}
+  .chip:active{transform:scale(.95)}
+
+  /* grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:12px}
+  .card{background:var(--paper);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);
+    transition:transform .18s, box-shadow .18s;cursor:pointer;display:flex;flex-direction:column}
+  .card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(58,42,32,.16)}
+  .card:active{transform:translateY(-1px) scale(.99)}
+  .card .thumb{height:130px;background:linear-gradient(135deg,#f6d9bd,#eebf97);display:grid;place-items:center;font-size:52px;position:relative}
+  .card .thumb img{width:100%;height:100%;object-fit:cover}
+  .card .fav{position:absolute;top:8px;right:8px;font-size:18px;background:rgba(255,255,255,.85);width:30px;height:30px;
+    border-radius:50%;display:grid;place-items:center}
+  .card .body{padding:12px 14px 14px}
+  .card h3{margin:0 0 6px;font-size:1.05rem;line-height:1.25}
+  .card .meta{display:flex;gap:12px;font-size:.78rem;color:var(--brown-2)}
+  .empty{text-align:center;color:var(--brown-2);padding:40px 10px;font-size:.95rem}
+
+  /* FAB */
+  .fab{position:fixed;right:20px;bottom:24px;width:60px;height:60px;border-radius:50%;background:var(--terra);color:#fff;
+    font-size:30px;display:grid;place-items:center;box-shadow:0 10px 24px rgba(198,93,59,.4);z-index:30;transition:transform .15s}
+  .fab:active{transform:scale(.9) rotate(90deg)}
+
+  /* modal */
+  .ov{position:fixed;inset:0;background:rgba(40,26,18,.5);backdrop-filter:blur(3px);display:none;
+    align-items:flex-end;justify-content:center;z-index:50}
+  .ov.show{display:flex;animation:fade .2s}
+  .sheet{background:var(--paper);width:100%;max-width:600px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;
+    padding:20px 20px 30px;box-shadow:0 -8px 40px rgba(0,0,0,.25);animation:slideup .28s cubic-bezier(.2,.8,.2,1)}
+  @keyframes slideup{from{transform:translateY(40px);opacity:.6}to{transform:translateY(0);opacity:1}}
+  .sheet .grab{width:44px;height:5px;border-radius:3px;background:#e3d3c0;margin:0 auto 14px}
+  .sheet h2{margin:.2rem 0 12px}
+  label.fld{display:block;margin:0 0 12px}
+  label.fld span{display:block;font-size:.82rem;color:var(--brown-2);margin:0 0 4px}
+  .in{width:100%;padding:11px 13px;border-radius:var(--r-s);border:1px solid var(--line);background:var(--cream);
+    font-size:1rem;color:var(--brown);font-family:inherit}
+  textarea.in{min-height:90px;resize:vertical}
+  .btn{display:inline-flex;align-items:center;gap:8px;justify-content:center;padding:12px 18px;border-radius:12px;
+    background:var(--terra);color:#fff;font-weight:600;font-size:.98rem;box-shadow:var(--shadow-s);transition:.12s}
+  .btn:active{transform:scale(.97)}
+  .btn.ghost{background:var(--cream);color:var(--brown);border:1px solid var(--line)}
+  .btn.wide{width:100%}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .det-img{height:190px;border-radius:var(--r);background:linear-gradient(135deg,#f6d9bd,#eebf97);display:grid;place-items:center;font-size:76px;overflow:hidden;margin:0 0 14px}
+  .det-img img{width:100%;height:100%;object-fit:cover}
+  .det h3{margin:16px 0 6px;color:var(--terra-d)}
+  .det ul,.det ol{margin:0;padding-left:20px;line-height:1.7}
+  .pill{display:inline-block;background:#f3e6d5;color:var(--brown-2);padding:3px 10px;border-radius:999px;font-size:.78rem;margin:0 6px 6px 0}
+
+  /* hidden mode ("Küchen-Notizbuch") — distinct, calmer tone */
+  #priv{position:fixed;inset:0;z-index:80;background:linear-gradient(180deg,#efe7dc,#e7ddce);display:none;flex-direction:column}
+  #priv.show{display:flex}
+  .pv-top{display:flex;align-items:center;gap:10px;padding:16px;background:#dcd0bf;box-shadow:var(--shadow-s)}
+  .pv-top h2{margin:0;font-size:1.15rem;color:#5a4632}
+  .pv-body{flex:1;overflow:auto;padding:16px;max-width:640px;margin:0 auto;width:100%}
+  .pv-card{background:var(--paper);border-radius:var(--r);padding:16px;box-shadow:var(--shadow-s);margin:0 0 14px}
+  .pv-card h3{margin:0 0 10px;font-size:1rem;color:#6b5438}
+  .code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem;word-break:break-all;background:var(--cream);
+    padding:10px;border-radius:8px;border:1px solid var(--line);color:var(--brown)}
+  .contact{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:1px solid var(--line);margin:0 0 8px;cursor:pointer;background:var(--cream)}
+  .contact:active{transform:scale(.99)}
+  .contact .av{width:38px;height:38px;border-radius:50%;background:var(--honey);display:grid;place-items:center;font-size:18px;color:#fff}
+  .contact .nm{font-weight:600}
+  .contact .sub{font-size:.74rem;color:var(--brown-2)}
+  .thread{display:flex;flex-direction:column;gap:8px;margin:8px 0;max-height:44vh;overflow:auto;padding:4px}
+  .bub{max-width:78%;padding:9px 12px;border-radius:14px;font-size:.92rem;line-height:1.35;word-break:break-word}
+  .bub.in{align-self:flex-start;background:#fff;border:1px solid var(--line)}
+  .bub.out{align-self:flex-end;background:var(--terra);color:#fff}
+  .bub .t{display:block;font-size:.66rem;opacity:.7;margin-top:3px}
+  .sas{font-family:ui-monospace,monospace;font-size:1.05rem;letter-spacing:1px;color:var(--terra-d);text-align:center;padding:8px}
+  .muted{color:var(--brown-2);font-size:.85rem}
+  .banner{background:#fff3e2;border:1px solid #f0d6b3;border-radius:10px;padding:10px 12px;font-size:.82rem;color:#7a5a30;margin:0 0 12px}
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--brown);color:#fff;padding:10px 18px;
+    border-radius:999px;font-size:.9rem;box-shadow:var(--shadow);z-index:200;opacity:0;transition:opacity .25s;pointer-events:none}
+  .toast.show{opacity:1}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="hat" id="hat" title="Kochfreunde">👨‍🍳</span>
+    <div><h1>Kochfreunde</h1><small>DEIN KOCH-BEGLEITER</small></div>
+  </div>
+  <span class="spacer"></span>
+  <button class="icon-btn" id="camBtn" title="Gericht fotografieren">📸</button>
+  <button class="icon-btn" id="favFilter" title="Favoriten">🤍</button>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <h2 id="greet">Was kochen wir heute?</h2>
+    <p>Sammle deine Lieblingsrezepte, frag den Chefkoch um Rat und lass dich inspirieren.</p>
+  </div>
+
+  <div class="ask">
+    <input id="chefInput" placeholder="Frag den Chefkoch … z. B. „was passt zu Kürbis?“" autocomplete="off">
+    <button class="mic" id="chefMic" title="Sprechen">🎙️</button>
+  </div>
+  <div class="chef-reply" id="chefReply"></div>
+
+  <div class="cats" id="cats"></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<button class="fab" id="addBtn" title="Rezept hinzufügen">＋</button>
+<input type="file" id="camFile" accept="image/*" capture="environment" class="hidden">
+<div class="toast" id="toast"></div>
+
+<!-- Rezept-Detail / Formular / Hidden-Mode werden per JS gefüllt -->
+<div class="ov" id="ov"><div class="sheet" id="sheet"><div class="grab"></div><div id="sheetBody"></div></div></div>
+
+<!-- Versteckter Bereich -->
+<div id="priv">
+  <div class="pv-top">
+    <span style="font-size:22px">🕯️</span>
+    <h2>Küchen-Notizbuch</h2>
+    <span class="spacer"></span>
+    <button class="icon-btn" id="pvLock" title="Schließen">✕</button>
+  </div>
+  <div class="pv-body" id="pvBody"></div>
+</div>
+
+<script type="module">
+import CommCore from "./comm-core/comm-core.js";
+
+/* ============================================================
+ * Kochfreunde — Tarn-Hülle über comm-core (Stufe A / Simulator).
+ * Die Rezept-App ist echt und die Tarnung; das Losungswort öffnet
+ * still den versteckten Modus. KEIN Autor, kein Impressum, keine
+ * Bezüge zu anderen Apps (Existenz-/Absichts-Tarnung).
+ * ============================================================ */
+
+// Gemeinsamer Rendezvous-Startwert — IDENTISCH in beiden Hüllen, damit alle
+// Installationen dieselbe Relais-Reihenfolge berechnen (ein Netz, mehrere
+// Karosserien). Kein Geheimnis (Verkehr ist ohnehin E2E), nur Koordination.
+const RENDEZVOUS_SEED = "kf-kz-simnetz-v1";
+
+// localStorage-Store-Adapter mit UNAUFFÄLLIGEM, app-gesuffixtem Schlüssel.
+// Der versteckte Bereich liegt als bedeutungsloser Chiffrat-Klumpen hier.
+const store = {
+  get: async k => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch(e){ return null; } },
+  set: async (k,v) => { localStorage.setItem(k, JSON.stringify(v)); },
+  del: async k => { localStorage.removeItem(k); },
+};
+
+await CommCore.init({ store, storeKey:"kf_state_v1", seed:RENDEZVOUS_SEED, euPolicy:"frei" });
+
+// ---------- kleine Helfer ----------
+const $ = s => document.querySelector(s);
+const el = (t,c,h)=>{const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e;};
+let toastT;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2200); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+// ============================================================
+// TEIL 1 — die Rezept-App (die Tarnung, echt nutzbar)
+// ============================================================
+const RKEY="kf_recipes";
+const CATS=["Alle","Suppen","Hauptgericht","Backen","Süßes","Vegetarisch"];
+const EMOJI={Suppen:"🍲",Hauptgericht:"🍝",Backen:"🥖",Süßes:"🍰",Vegetarisch:"🥗"};
+const SEED_RECIPES=[
+  {id:"r1",name:"Kürbissuppe mit Ingwer",cat:"Suppen",time:"30 Min",diff:"leicht",fav:false,
+   ing:["1 Hokkaido-Kürbis","1 Zwiebel","2 cm Ingwer","500 ml Gemüsebrühe","100 ml Sahne","Salz, Pfeffer, Muskat"],
+   steps:["Kürbis würfeln, Zwiebel und Ingwer anschwitzen.","Kürbis zugeben, mit Brühe aufgießen, 20 Min köcheln.","Fein pürieren, Sahne einrühren, abschmecken."]},
+  {id:"r2",name:"Ofengemüse mit Feta",cat:"Vegetarisch",time:"40 Min",diff:"leicht",fav:true,
+   ing:["Paprika, Zucchini, Aubergine","1 rote Zwiebel","200 g Feta","Olivenöl","Thymian, Salz, Pfeffer"],
+   steps:["Gemüse in Stücke schneiden.","Mit Öl und Kräutern mischen, auf ein Blech.","Bei 200°C 30 Min backen, Feta darüber bröseln."]},
+  {id:"r3",name:"Omas Apfelkuchen",cat:"Backen",time:"75 Min",diff:"mittel",fav:false,
+   ing:["4 Äpfel","250 g Mehl","150 g Butter","120 g Zucker","2 Eier","1 TL Zimt"],
+   steps:["Mürbeteig kneten, kühlen.","Äpfel schälen, in Spalten, mit Zimt mischen.","Teig in die Form, Äpfel darauf, bei 180°C 50 Min backen."]},
+  {id:"r4",name:"Pasta al limone",cat:"Hauptgericht",time:"20 Min",diff:"leicht",fav:false,
+   ing:["300 g Spaghetti","1 Bio-Zitrone","100 ml Sahne","50 g Parmesan","Butter, Salz"],
+   steps:["Pasta kochen.","Zitronenabrieb + Saft mit Sahne und Butter erwärmen.","Pasta und Parmesan unterheben, abschmecken."]},
+];
+let recipes = [];
+let curCat="Alle", favOnly=false;
+
+async function loadRecipes(){
+  const saved = await store.get(RKEY);
+  recipes = Array.isArray(saved) && saved.length ? saved : SEED_RECIPES.slice();
+  if(!saved) await store.set(RKEY, recipes);
+}
+async function saveRecipes(){ await store.set(RKEY, recipes); }
+
+function renderCats(){
+  const c=$("#cats"); c.innerHTML="";
+  CATS.forEach(cat=>{
+    const b=el("button","chip"+(cat===curCat?" on":""),esc(cat));
+    b.onclick=()=>{curCat=cat; renderCats(); renderGrid();};
+    c.appendChild(b);
+  });
+}
+function renderGrid(){
+  const g=$("#grid"); g.innerHTML="";
+  let list=recipes.filter(r=>(curCat==="Alle"||r.cat===curCat)&&(!favOnly||r.fav));
+  const q=$("#chefInput").dataset.filter;
+  if(q) list=list.filter(r=>(r.name+" "+r.cat+" "+r.ing.join(" ")).toLowerCase().includes(q));
+  if(!list.length){ g.appendChild(el("div","empty","🍽️ Noch nichts hier — tippe auf ＋ und leg dein erstes Rezept an.")); return; }
+  list.forEach(r=>{
+    const card=el("div","card");
+    const thumb = r.img
+      ? `<div class="thumb"><img src="${r.img}" alt=""><span class="fav">${r.fav?"❤️":"🤍"}</span></div>`
+      : `<div class="thumb">${EMOJI[r.cat]||"🍳"}<span class="fav">${r.fav?"❤️":"🤍"}</span></div>`;
+    card.innerHTML=`${thumb}<div class="body"><h3>${esc(r.name)}</h3>
+      <div class="meta"><span>⏱ ${esc(r.time||"")}</span><span>📊 ${esc(r.diff||"")}</span></div></div>`;
+    card.onclick=()=>showDetail(r.id);
+    g.appendChild(card);
+  });
+}
+
+// Detail-Ansicht
+function showDetail(id){
+  const r=recipes.find(x=>x.id===id); if(!r) return;
+  const b=$("#sheetBody");
+  b.innerHTML=`
+    <div class="det">
+      <div class="det-img">${r.img?`<img src="${r.img}" alt="">`:(EMOJI[r.cat]||"🍳")}</div>
+      <span class="pill">${esc(r.cat)}</span><span class="pill">⏱ ${esc(r.time||"")}</span><span class="pill">📊 ${esc(r.diff||"")}</span>
+      <h2 style="margin:8px 0">${esc(r.name)}</h2>
+      <h3>Zutaten</h3><ul>${r.ing.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>
+      <h3>Zubereitung</h3><ol>${r.steps.map(s=>`<li>${esc(s)}</li>`).join("")}</ol>
+      <div class="row" style="margin-top:18px">
+        <button class="btn ghost" id="dFav">${r.fav?"❤️ Favorit":"🤍 Merken"}</button>
+        <button class="btn ghost" id="dEdit">✏️ Bearbeiten</button>
+        <button class="btn ghost" id="dDel" style="color:#a94a2c">🗑 Löschen</button>
+      </div>
+    </div>`;
+  openOv();
+  $("#dFav").onclick=async()=>{r.fav=!r.fav; await saveRecipes(); renderGrid(); showDetail(id);};
+  $("#dEdit").onclick=()=>showForm(r);
+  $("#dDel").onclick=async()=>{ recipes=recipes.filter(x=>x.id!==id); await saveRecipes(); renderGrid(); closeOv(); toast("Rezept gelöscht"); };
+}
+
+// Formular (neu/bearbeiten)
+function showForm(r){
+  const isNew=!r; r=r||{id:"r"+Date.now(),cat:"Hauptgericht",fav:false,ing:[],steps:[]};
+  const b=$("#sheetBody");
+  b.innerHTML=`
+    <h2>${isNew?"Neues Rezept":"Rezept bearbeiten"}</h2>
+    <label class="fld"><span>Name</span><input class="in" id="fName" value="${esc(r.name||"")}"></label>
+    <div class="row">
+      <label class="fld" style="flex:1"><span>Kategorie</span>
+        <select class="in" id="fCat">${CATS.filter(c=>c!=="Alle").map(c=>`<option ${c===r.cat?"selected":""}>${c}</option>`).join("")}</select></label>
+      <label class="fld" style="width:110px"><span>Zeit</span><input class="in" id="fTime" value="${esc(r.time||"")}"></label>
+      <label class="fld" style="width:110px"><span>Schwierigkeit</span><input class="in" id="fDiff" value="${esc(r.diff||"leicht")}"></label>
+    </div>
+    <label class="fld"><span>Zutaten (eine pro Zeile)</span><textarea class="in" id="fIng">${esc((r.ing||[]).join("\n"))}</textarea></label>
+    <label class="fld"><span>Zubereitung (ein Schritt pro Zeile)</span><textarea class="in" id="fSteps">${esc((r.steps||[]).join("\n"))}</textarea></label>
+    ${r.img?`<div class="det-img" style="height:120px"><img src="${r.img}" alt=""></div>`:""}
+    <button class="btn wide" id="fSave">💾 Speichern</button>`;
+  openOv();
+  $("#fSave").onclick=async()=>{
+    r.name=$("#fName").value.trim()||"Unbenanntes Rezept";
+    r.cat=$("#fCat").value; r.time=$("#fTime").value.trim(); r.diff=$("#fDiff").value.trim();
+    r.ing=$("#fIng").value.split("\n").map(s=>s.trim()).filter(Boolean);
+    r.steps=$("#fSteps").value.split("\n").map(s=>s.trim()).filter(Boolean);
+    if(isNew) recipes.unshift(r);
+    await saveRecipes(); renderGrid(); closeOv(); toast(isNew?"Rezept gespeichert":"Änderungen gespeichert");
+  };
+}
+
+// Kamera / Foto → neues Rezept mit Bild
+let pendingImg=null;
+$("#camBtn").onclick=()=>$("#camFile").click();
+$("#camFile").onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{ pendingImg=rd.result; const r={id:"r"+Date.now(),cat:"Hauptgericht",fav:false,ing:[],steps:[],img:rd.result,name:""}; showForm(r); };
+  rd.readAsDataURL(f);
+  e.target.value="";
+};
+
+function openOv(){ $("#ov").classList.add("show"); }
+function closeOv(){ $("#ov").classList.remove("show"); }
+$("#ov").onclick=e=>{ if(e.target.id==="ov") closeOv(); };
+$("#addBtn").onclick=()=>showForm(null);
+$("#favFilter").onclick=e=>{ favOnly=!favOnly; e.currentTarget.textContent=favOnly?"❤️":"🤍"; renderGrid(); };
+
+// Chef-Eingabe (Text): dient als (a) Rezept-Suche/Antwort UND (b) still als
+// Losungswort-Prüfung. Fällt beides zusammen → deniabler Doppel-Nutzen.
+$("#chefInput").addEventListener("input",e=>{ e.target.dataset.filter=e.target.value.trim().toLowerCase(); renderGrid(); });
+$("#chefInput").addEventListener("keydown",e=>{ if(e.key==="Enter") handleChef(e.target.value); });
+
+function chefAnswer(q){
+  q=q.toLowerCase();
+  const hit=recipes.find(r=>(r.name+" "+r.ing.join(" ")).toLowerCase().includes(q.split(" ").filter(w=>w.length>3)[0]||"~"));
+  if(hit) return `Wie wär's mit „${hit.name}“? Tippe unten drauf für das ganze Rezept.`;
+  return "Erzähl mir, was du im Haus hast — ich such dir etwas Passendes heraus. 🍅";
+}
+async function handleChef(text){
+  text=(text||"").trim(); if(!text) return;
+  // (b) still prüfen, ob es das Losungswort ist → versteckten Bereich öffnen
+  try{ if(await CommCore.unlock.fromSpokenPhrase(text)){ $("#chefInput").value=""; $("#chefInput").dataset.filter=""; renderGrid(); openPriv(); return; } }catch(e){}
+  // (a) sonst ganz normal als Chefkoch antworten
+  const rep=$("#chefReply"); rep.textContent=chefAnswer(text); rep.classList.add("show");
+  setTimeout(()=>rep.classList.remove("show"),6000);
+}
+
+// Chef-Mikrofon (Modul 21) — Sprache → Text → handleChef
+const speech = CommCore.speech.module();
+$("#chefMic").onclick=()=>{
+  if(!speech){ toast("Spracheingabe hier nicht verfügbar — bitte tippen."); return; }
+  const rec = speech.makeBrowserRecognizer({ lang:"de-DE",
+    onResult:t=>{ $("#chefInput").value=t; handleChef(t); },
+    onError:m=>toast(m), onEnd:()=>$("#chefMic").classList.remove("live") });
+  if(!rec.supported){ toast("Browser-Spracherkennung nicht verfügbar — bitte tippen."); return; }
+  $("#chefMic").classList.add("live"); rec.start();
+};
+
+// ============================================================
+// TEIL 2 — Ersteinrichtung des versteckten Bereichs
+// Erreichbar über eine unauffällige Geste: langer Druck (2 s) auf den
+// Koch-Hut. Nur wenn noch KEIN Bereich existiert (sonst nichts sichtbar →
+// deniabel). "App führt den Rest nach dem Öffnen" (Plan §Frage 3).
+// ============================================================
+let pressT;
+const hat=$("#hat");
+const startPress=async()=>{ pressT=setTimeout(async()=>{
+  const exists = await store.get("kf_state_v1");
+  if(exists){ if(CommCore.isUnlocked()) openPriv(); return; }   // schon eingerichtet → nichts verraten
+  showSetup();
+},2000); };
+const cancelPress=()=>clearTimeout(pressT);
+hat.addEventListener("pointerdown",startPress);
+hat.addEventListener("pointerup",cancelPress);
+hat.addEventListener("pointerleave",cancelPress);
+
+function showSetup(){
+  $("#sheetBody").innerHTML=`
+    <h2>🕯️ Vertrauten Bereich einrichten</h2>
+    <div class="banner">Sprich oder tippe dein <b>vereinbartes Losungswort</b>. Damit öffnest du später
+      still diesen Bereich. Ohne das Wort ist hier nichts zu finden. Merke es dir gut — es lässt sich
+      nicht auslesen, nur wiederherstellen (Anteile weiter unten).</div>
+    <label class="fld"><span>Losungswort (harmlos klingend, ein Satz ist gut)</span>
+      <input class="in" id="suPhrase" placeholder="z. B. wie macht man omas gulasch"></label>
+    <div class="row">
+      <button class="btn" id="suMic">🎙️ Sprechen</button>
+      <button class="btn" id="suGo" style="flex:1">Einrichten</button>
+    </div>`;
+  openOv();
+  $("#suMic").onclick=()=>{ if(!speech) return toast("Bitte tippen."); const r=speech.makeBrowserRecognizer({lang:"de-DE",onResult:t=>$("#suPhrase").value=t,onError:m=>toast(m)}); if(r.supported)r.start(); else toast("Bitte tippen."); };
+  $("#suGo").onclick=async()=>{
+    const p=$("#suPhrase").value.trim();
+    if(p.length<4){ toast("Bitte ein etwas längeres Wort/Satz."); return; }
+    const res=await CommCore.enroll.fromSpokenPhrase(p);
+    if(res.ok){ closeOv(); openPriv(); toast("Bereich eingerichtet."); }
+    else toast(res.reason||"Konnte nicht einrichten.");
+  };
+}
+
+// ============================================================
+// TEIL 3 — der versteckte Bereich (comm-core)
+// ============================================================
+let curPeer=null, inboxTimer=null;
+function openPriv(){ $("#priv").classList.add("show"); renderPriv(); }
+function closePriv(){ $("#priv").classList.remove("show"); clearInterval(inboxTimer); inboxTimer=null; curPeer=null; }
+$("#pvLock").onclick=()=>{ CommCore.unlock.lock(); closePriv(); };
+
+function renderPriv(){
+  const body=$("#pvBody");
+  const myKey=CommCore.identity.pubKey()||"—";
+  const contacts=CommCore.pairing.listContacts();
+  if(curPeer){ renderThread(); return; }
+  body.innerHTML=`
+    <div class="banner">Ehrliche Grenze: das schützt den <b>Inhalt</b> (Ende-zu-Ende). Wer mit wem schreibt,
+      ist hier nicht verschleiert. Für den Ernstfall bleiben Signal / Tor die stärkeren Werkzeuge.</div>
+
+    <div class="pv-card">
+      <h3>👤 Dein Schlüssel</h3>
+      <div class="muted" style="margin-bottom:6px">Gib ihn deinem Vertrauten (persönlich oder vorlesen). So findet er dich.</div>
+      <div class="code" id="myKey">${esc(myKey)}</div>
+      <div class="row" style="margin-top:8px"><button class="btn ghost" id="copyKey">📋 Kopieren</button></div>
+    </div>
+
+    <div class="pv-card">
+      <h3>➕ Vertrauten hinzufügen</h3>
+      <label class="fld"><span>Sein Schlüssel (64 Zeichen)</span><input class="in" id="cPub" placeholder="einfügen …"></label>
+      <label class="fld"><span>Name</span><input class="in" id="cName" placeholder="z. B. Mutter"></label>
+      <button class="btn" id="cAdd">Hinzufügen</button>
+    </div>
+
+    <div class="pv-card">
+      <h3>👥 Vertrauter Kreis</h3>
+      <div id="clist">${contacts.length?"":'<div class="muted">Noch niemand. Füge oben einen Vertrauten hinzu.</div>'}</div>
+    </div>
+
+    <div class="pv-card">
+      <h3>🎒 In andere App mitnehmen</h3>
+      <div class="muted" style="margin-bottom:8px">Dein Identitäts-Päckchen (verschlüsselt) — damit lädst du dieselbe Identität in eine Schwester-App.</div>
+      <div class="row"><button class="btn ghost" id="expBtn">⬆️ Päckchen erstellen</button><button class="btn ghost" id="impBtn">⬇️ Päckchen laden</button></div>
+    </div>
+
+    <div class="pv-card">
+      <h3>📡 Verbindung</h3>
+      <div class="muted">Modus:</div>
+      <div class="row" style="margin:6px 0">
+        <button class="btn ${CommCore.mode.get()==="normal"?"":"ghost"}" id="mNorm">Alltag</button>
+        <button class="btn ${CommCore.mode.get()==="vorsicht"?"":"ghost"}" id="mVor">Vorsicht</button>
+      </div>
+      <div class="muted" id="relInfo"></div>
+      <button class="btn ghost" id="callBtn" style="margin-top:8px">📞 Anrufen (schläft — kommt später)</button>
+    </div>`;
+  // Schlüssel
+  $("#copyKey").onclick=()=>{ navigator.clipboard?.writeText(myKey); toast("Schlüssel kopiert"); };
+  // Kontakt hinzufügen
+  $("#cAdd").onclick=async()=>{
+    const r=await CommCore.pairing.addContact($("#cPub").value.trim(), $("#cName").value.trim());
+    if(r.ok){ toast("Vertrauter hinzugefügt"); renderPriv(); } else toast(r.reason||"Ungültiger Schlüssel");
+  };
+  // Kontaktliste
+  const cl=$("#clist");
+  contacts.forEach(c=>{
+    const d=el("div","contact");
+    d.innerHTML=`<div class="av">${esc((c.name||"?")[0]||"?").toUpperCase()}</div>
+      <div style="flex:1"><div class="nm">${esc(c.name||"Vertrauter")}</div><div class="sub">${esc(c.pub.slice(0,16))}…</div></div><span>›</span>`;
+    d.onclick=()=>{ curPeer=c.pub; renderThread(); };
+    cl.appendChild(d);
+  });
+  // Päckchen
+  $("#expBtn").onclick=exportPacket;
+  $("#impBtn").onclick=importPacket;
+  // Modus
+  $("#mNorm").onclick=()=>{ CommCore.mode.set("normal"); renderPriv(); };
+  $("#mVor").onclick=()=>{ CommCore.mode.set("vorsicht"); toast("Vorsicht-Modus: server-los, mehr Metadaten sichtbar."); renderPriv(); };
+  $("#callBtn").onclick=()=>toast(CommCore.call.start().reason);
+  try{ $("#relInfo").textContent="Relais heute: "+CommCore.relay.currentByTimeSeed()[0].replace("wss://",""); }catch(e){}
+}
+
+async function exportPacket(){
+  const pw=prompt("Passwort für das Päckchen (mind. 8 Zeichen) — merke es dir getrennt:");
+  if(!pw) return;
+  try{
+    const pkt=await CommCore.identity.exportPacket(pw);
+    $("#sheetBody").innerHTML=`<h2>🎒 Dein Päckchen</h2>
+      <div class="banner">Kopiere diesen Text und lade ihn in der anderen App unter „Päckchen laden“. Er ist verschlüsselt — ohne dein Passwort wertlos.</div>
+      <div class="code">${esc(pkt)}</div>
+      <button class="btn wide" id="pcCopy" style="margin-top:12px">📋 Kopieren</button>`;
+    openOv();
+    $("#pcCopy").onclick=()=>{ navigator.clipboard?.writeText(pkt); toast("Päckchen kopiert"); };
+  }catch(e){ toast(e.message||"Fehler"); }
+}
+async function importPacket(){
+  $("#sheetBody").innerHTML=`<h2>⬇️ Päckchen laden</h2>
+    <label class="fld"><span>Päckchen-Text</span><textarea class="in" id="ipTxt" placeholder="ccpkt1…"></textarea></label>
+    <label class="fld"><span>Päckchen-Passwort</span><input class="in" id="ipPw" type="password"></label>
+    <div class="banner">Optional: ein Losungswort für DIESE App, damit die Identität hier dauerhaft bleibt.</div>
+    <label class="fld"><span>Losungswort für diese App (optional)</span><input class="in" id="ipPhrase"></label>
+    <button class="btn wide" id="ipGo">Laden</button>`;
+  openOv();
+  $("#ipGo").onclick=async()=>{
+    const ok=await CommCore.identity.importPacket($("#ipTxt").value.trim(), $("#ipPw").value, $("#ipPhrase").value.trim()||undefined);
+    if(ok){ closeOv(); toast("Identität geladen"); renderPriv(); } else toast("Konnte nicht laden (Passwort/Text prüfen).");
+  };
+}
+
+// Nachrichten-Thread mit einem Vertrauten
+async function renderThread(){
+  const body=$("#pvBody");
+  const c=CommCore.pairing.listContacts().find(x=>x.pub===curPeer);
+  const sas=await CommCore.pairing.safetyNumber(curPeer);
+  body.innerHTML=`
+    <div class="row" style="align-items:center;margin-bottom:8px">
+      <button class="btn ghost" id="back">‹ zurück</button>
+      <h3 style="margin:0 0 0 6px">${esc(c?.name||"Vertrauter")}</h3>
+    </div>
+    <div class="pv-card">
+      <h3>🔢 Sicherheitsnummer — „lies mir die Zahlen vor“</h3>
+      <div class="muted">Stimmen sie bei euch beiden überein, ist die Leitung echt (kein Mithörer dazwischen).</div>
+      <div class="sas">${esc(sas)}</div>
+    </div>
+    <div class="pv-card">
+      <div class="thread" id="thread"><div class="muted">Lade Nachrichten …</div></div>
+      <div class="row" style="margin-top:8px">
+        <input class="in" id="msgTxt" placeholder="Nachricht …" style="flex:1">
+        <button class="btn ghost" id="voiceBtn" title="Sprachnotiz">🎙️</button>
+        <button class="btn" id="sendBtn">Senden</button>
+      </div>
+    </div>`;
+  $("#back").onclick=()=>{ curPeer=null; clearInterval(inboxTimer); inboxTimer=null; renderPriv(); };
+  $("#sendBtn").onclick=sendMsg;
+  $("#msgTxt").addEventListener("keydown",e=>{ if(e.key==="Enter") sendMsg(); });
+  $("#voiceBtn").onclick=recordVoice;
+  await refreshInbox();
+  clearInterval(inboxTimer);
+  inboxTimer=setInterval(refreshInbox, 12000);   // sanftes Nachholen; kein Dauer-Piepser
+}
+async function refreshInbox(){
+  if(!curPeer) return;
+  const msgs=await CommCore.msg.inbox(curPeer,{waitMs:4000});
+  const t=$("#thread"); if(!t) return;
+  if(!msgs.length){ t.innerHTML='<div class="muted">Noch keine Nachrichten. Schreib die erste.</div>'; return; }
+  t.innerHTML="";
+  msgs.forEach(m=>{
+    const b=el("div","bub "+(m.direction==="out"?"out":"in"));
+    let inner = m.kind==="voice" ? "🎧 Sprachnotiz" : (m.kind==="image" ? "🖼️ Bild" : esc(m.body));
+    b.innerHTML=inner+`<span class="t">${new Date((m.ts||0)).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})}</span>`;
+    if(m.kind==="voice" && m.body){ b.style.cursor="pointer"; b.onclick=()=>playVoice(m.body); }
+    t.appendChild(b);
+  });
+  t.scrollTop=t.scrollHeight;
+}
+async function sendMsg(){
+  const inp=$("#msgTxt"); const v=inp.value.trim(); if(!v||!curPeer) return;
+  inp.value="";
+  const r=await CommCore.msg.send(curPeer,{text:v});
+  if(!r.ok){ toast(r.reason||"Konnte nicht senden"); return; }
+  await refreshInbox();
+}
+function playVoice(b64){
+  try{ const a=new Audio("data:audio/webm;base64,"+b64); a.play(); }catch(e){ toast("Konnte nicht abspielen"); }
+}
+async function recordVoice(){
+  if(!speech){ toast("Aufnahme nicht verfügbar"); return; }
+  const rec=await speech.startRecording();
+  if(!rec.available){ toast(rec.reason||"Kein Mikrofon"); return; }
+  toast("Aufnahme läuft — nochmal tippen zum Senden");
+  const btn=$("#voiceBtn"); btn.classList.add("live");
+  btn.onclick=async()=>{
+    btn.classList.remove("live"); btn.onclick=recordVoice;
+    const out=await rec.stop();
+    if(out.available && out.content && curPeer){ await CommCore.msg.send(curPeer,{voice:out.content}); await refreshInbox(); toast("Sprachnotiz gesendet"); }
+    else toast("Aufnahme leer");
+  };
+}
+
+// ============================================================
+// Start
+// ============================================================
+const h=new Date().getHours();
+$("#greet").textContent = h<11?"Guten Morgen — was frühstücken wir?" : h<15?"Was kochen wir heute?" : h<22?"Zeit fürs Abendessen?" : "Noch ein Betthupferl?";
+await loadRecipes(); renderCats(); renderGrid();
+
+// Service Worker (offline-first) — fail-soft
+if("serviceWorker" in navigator){ try{ navigator.serviceWorker.register("./sw.js"); }catch(e){} }
+
+// Debug-Brücke NUR für den headless-Smoke (kein Bedien-Weg für Nutzer).
+window.__kf = { CommCore, handleChef, openPriv, store };
+</script>
+</body>
+</html>
