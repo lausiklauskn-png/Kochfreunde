@@ -1,0 +1,12 @@
+{
+  "name": "kochfreund",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Rezept-Begleiter (Tarn-Hülle über comm-core, Stufe A / Simulator).",
+  "scripts": {
+    "test": "node tools/drift-guard.mjs && node tests/comm-core.test.mjs",
+    "drift": "node tools/drift-guard.mjs",
+    "serve": "python3 -m http.server 8000"
+  }
+}
