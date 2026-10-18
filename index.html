@@ -47,6 +47,11 @@
   .icon-btn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:20px;
     background:var(--paper);box-shadow:var(--shadow-s);transition:transform .15s, box-shadow .15s}
   .icon-btn:active{transform:scale(.92)}
+  /* Installieren-Knopf (assets/installieren.js): rund wie die Nachbarn, nur das Zeichen ⬇ */
+  #installieren .t{display:none}
+  /* Mit dem dritten Rundknopf passt die Kopfleiste bei 360 px nur mit kleineren Knöpfen in eine Zeile */
+  .topbar .icon-btn{flex-shrink:0}
+  @media (max-width:380px){.topbar{gap:6px}.topbar .icon-btn{width:36px;height:36px;font-size:18px}}
 
   /* hero */
   .hero{margin:6px 0 18px;padding:22px 22px;border-radius:var(--r);
@@ -199,6 +204,7 @@
   <div class="pv-body" id="pvBody"></div>
 </div>
 
+<script src="assets/installieren.js?v=1" data-name="Kochfreunde" data-vor="camBtn" defer></script>
 <script type="module">
 import CommCore from "./comm-core/comm-core.js";
 

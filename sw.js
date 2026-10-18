@@ -5,13 +5,14 @@
  * CACHE_VERSION erhöhen. WebSocket-Relais-Verkehr geht am SW vorbei (er
  * fängt nur GET-Navigations-/Asset-Requests ab).
  */
-const CACHE_VERSION = "kochfreunde-v1";
+const CACHE_VERSION = "kochfreunde-v2";
 const SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+  "./assets/installieren.js?v=1",
   "./comm-core/comm-core.js",
   "./comm-core/relay-transport.js",
   "./comm-core/vendor/noble-secp256k1.js",
